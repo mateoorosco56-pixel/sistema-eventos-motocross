@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Services\VerificacionIdentidadService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -46,24 +47,52 @@ test('profile page is displayed', function () {
     $response->assertOk();
 });
 
+test('pilot profile page shows logout without the collapsed hamburger menu', function () {
+    $pilot = User::factory()->create(['role' => 'piloto']);
+
+    $this->actingAs($pilot)
+        ->get('/profile')
+        ->assertOk()
+        ->assertSee('Cerrar sesión')
+        ->assertSee('Fotografía del reverso del carnet')
+        ->assertSee('action="' . route('logout') . '"', false)
+        ->assertDontSee('navbar-toggler', false);
+});
+
 test('pilots can submit identity verification documents', function () {
     Storage::fake('local');
 
     $user = User::factory()->create([
         'role' => 'piloto',
-        'verification_status' => 'pendiente',
+        'verification_status' => 'pending_review',
     ]);
 
     $pngContent = createValidPngBytes();
     $document = UploadedFile::fake()->createWithContent('document.png', $pngContent, 'image/png');
+    $documentBack = UploadedFile::fake()->createWithContent('document-back.png', $pngContent, 'image/png');
     $selfie = UploadedFile::fake()->createWithContent('selfie.png', $pngContent, 'image/png');
+    $this->mock(VerificacionIdentidadService::class)
+        ->shouldReceive('verifyPilotIdentity')
+        ->once()
+        ->andReturn([
+            'status' => 'verified',
+            'method' => 'automatic_ocr_face',
+            'result' => 'OCR y comparación facial completados.',
+            'verified_at' => now(),
+            'reviewed_at' => now(),
+        ]);
 
     $response = $this
         ->actingAs($user)
         ->from('/profile')
         ->post('/profile/verification', [
+            'first_name' => 'Test',
+            'last_name' => 'Pilot',
+            'identity_document_number' => '1234567',
             'document_photo' => $document,
+            'document_back_photo' => $documentBack,
             'selfie_photo' => $selfie,
+            'identity_processing_consent' => '1',
         ]);
 
     $response
@@ -72,8 +101,10 @@ test('pilots can submit identity verification documents', function () {
 
     $user->refresh();
 
-    expect($user->verification_status)->toBe('verificada')
-        ->and($user->verification_result)->toContain('Se validó la presencia')
+    expect($user->verification_status)->toBe('verified')
+        ->and($user->verification_method)->toBe('automatic_ocr_face')
+        ->and($user->identity_document_number)->toBe('1234567')
+        ->and(Storage::disk('local')->exists($user->document_back_path))->toBeTrue()
         ->and($user->verified_at)->not->toBeNull();
 });
 
@@ -122,6 +153,7 @@ test('regular users cannot submit pilot identity verification', function () {
 
     $pngContent = createValidPngBytes();
     $document = UploadedFile::fake()->createWithContent('document.png', $pngContent, 'image/png');
+    $documentBack = UploadedFile::fake()->createWithContent('document-back.png', $pngContent, 'image/png');
     $selfie = UploadedFile::fake()->createWithContent('selfie.png', $pngContent, 'image/png');
 
     $response = $this
@@ -129,6 +161,7 @@ test('regular users cannot submit pilot identity verification', function () {
         ->from('/profile')
         ->post('/profile/verification', [
             'document_photo' => $document,
+            'document_back_photo' => $documentBack,
             'selfie_photo' => $selfie,
         ]);
 

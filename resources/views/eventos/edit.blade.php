@@ -21,6 +21,11 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label">Hora de inicio</label>
+                            <input type="time" name="start_time" class="form-control" value="{{ old('start_time', $event->start_time ? substr($event->start_time, 0, 5) : '') }}" required>
+                        </div>
+
+                        <div class="col-md-6">
                             <label class="form-label">Categorías disponibles</label>
                             @php($selectedCategories = old('category_ids', $event->categories->pluck('id')->all()))
                             <div class="dropdown" data-bs-auto-close="outside">
@@ -30,7 +35,7 @@
                                 <div class="dropdown-menu w-100 p-3 amc-category-menu">
                                     @foreach ($categories as $category)
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="category_ids[]" value="{{ $category->id }}" id="edit-category-{{ $category->id }}" @checked(in_array($category->id, $selectedCategories))>
+                                            <input class="form-check-input event-category-checkbox" type="checkbox" name="category_ids[]" value="{{ $category->id }}" id="edit-category-{{ $category->id }}" @checked(in_array($category->id, $selectedCategories))>
                                             <label class="form-check-label" for="edit-category-{{ $category->id }}">{{ $category->name }}</label>
                                         </div>
                                     @endforeach
@@ -39,9 +44,17 @@
                             <small class="text-muted">Puedes seleccionar una o varias categorías.</small>
                         </div>
 
+                        @include('eventos.partials.category-fees', ['event' => $event, 'categories' => $categories])
+
                         <div class="col-md-6">
                             <label class="form-label">Ubicación</label>
                             <input type="text" name="location" class="form-control" value="{{ old('location', $event->location) }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="organizer_whatsapp">WhatsApp de contacto</label>
+                            <input type="tel" id="organizer_whatsapp" name="organizer_whatsapp" class="form-control" value="{{ old('organizer_whatsapp', $event->organizer_whatsapp) }}" placeholder="+591 70000000" inputmode="tel" autocomplete="tel">
+                            <small class="text-muted">Incluye el código de país para abrir el chat correctamente.</small>
                         </div>
 
                         @include('eventos.partials.map-picker', ['latitude' => $event->latitude, 'longitude' => $event->longitude])
@@ -57,16 +70,21 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Costo de inscripción</label>
-                            <input type="number" name="entry_fee" class="form-control" min="0" step="0.01" value="{{ old('entry_fee', $event->entry_fee) }}">
-                        </div>
+                        @include('eventos.partials.extras', ['event' => $event, 'categories' => $categories, 'collapsiblePrizes' => true])
 
                         <div class="col-md-6">
                             <label class="form-label">Código QR para el pago</label>
                             <input type="file" name="payment_qr" class="form-control" accept="image/jpeg,image/png,image/webp">
                             @if($event->payment_qr_path)
                                 <img src="{{ url('/storage/'.$event->payment_qr_path) }}" alt="QR de pago actual" class="mt-2" style="max-width: 150px;">
+                            @endif
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fondo del evento</label>
+                            <input type="file" name="event_background" class="form-control" accept="image/jpeg,image/png,image/webp">
+                            @if($event->cover_path)
+                                <img src="{{ url('/storage/'.$event->cover_path) }}" alt="Fondo actual" class="mt-2" style="max-width: 200px; max-height: 120px; object-fit: cover; border-radius: 10px;">
                             @endif
                         </div>
 
@@ -79,6 +97,7 @@
                             <label class="form-label">Descripción</label>
                             <textarea name="description" rows="5" class="form-control">{{ old('description', $event->description) }}</textarea>
                         </div>
+                        @include('eventos.partials.circuit-picker', ['circuits' => $circuits, 'event' => $event])
                     </div>
 
                     <div class="mt-4 d-flex flex-wrap gap-2 form-actions">

@@ -2,14 +2,30 @@
     <div class="container py-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Editar inscripción</h4>
+                <h4 class="mb-0">{{ auth()->user()->role === 'piloto' ? 'Editar inscripción' : 'Validar inscripción' }}</h4>
             </div>
             <div class="card-body">
+                @if(auth()->user()->role !== 'piloto' && $registration->status === 'confirmada' && $registration->payment_status === 'aprobado')
+                    <div class="alert alert-success" role="status">Pago e inscripción aceptada.</div>
+                @elseif(session('success'))
+                    <div class="alert alert-success" role="status">{{ session('success') }}</div>
+                @endif
+                @if($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                @if(auth()->user()->role === 'piloto')
                 <form method="POST" action="{{ route('inscripciones.update', $registration) }}">
                     @csrf
                     @method('PATCH')
+                @endif
 
-                    <div class="row g-3">
+                <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Evento</label>
                             <input type="text" class="form-control" value="{{ $registration->event->title ?? 'Evento' }}" disabled>
@@ -69,12 +85,16 @@
                         @if(auth()->user()->role !== 'piloto')
                         <div class="col-md-6">
                             <label class="form-label">Estado del pago</label>
-                            <input type="text" class="form-control" value="{{ ucfirst(str_replace('_', ' ', $registration->payment_status ?? 'pendiente')) }}" disabled>
+                            <input type="text" class="form-control" value="{{ match($registration->payment_status) { 'aprobado' => 'Aprobado', 'en_revision' => 'En revisión', 'rechazado' => 'Rechazado', default => 'Pendiente' } }}" disabled>
                             @if($registration->payment_proof_path)
-                                <a href="{{ route('inscripciones.payment-proof', $registration) }}" class="btn btn-sm btn-outline-primary mt-2" target="_blank" rel="noopener" download>Descargar comprobante</a>
+                                <small class="text-muted">Comprobante recibido.</small>
                             @else
                                 <small class="text-muted">El piloto aún no ha enviado comprobante.</small>
                             @endif
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estado de la inscripción</label>
+                            <input type="text" class="form-control" value="{{ match($registration->status) { 'confirmada' => 'Aceptada', 'rechazada' => 'Rechazada', default => 'Pendiente' } }}" disabled>
                         </div>
                         @if($registration->payment_proof_path)
                             <div class="col-12">
@@ -94,6 +114,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @if($registration->status !== 'confirmada' || $registration->payment_status !== 'aprobado')
                             <div class="col-12">
                                 <div class="d-flex flex-wrap gap-2 align-items-center">
                                     <form action="{{ route('inscripciones.validate-payment', $registration) }}" method="POST">
@@ -101,7 +122,7 @@
                                         @method('PATCH')
                                         <input type="hidden" name="payment_status" value="aprobado">
                                         <input type="hidden" name="status" value="confirmada">
-                                        <button type="submit" class="btn btn-success">Aceptar pago e inscripción</button>
+                                        <button type="submit" class="btn btn-success">{{ $registration->payment_status === 'aprobado' ? 'Confirmar inscripción' : 'Aceptar pago e inscripción' }}</button>
                                     </form>
                                     <form action="{{ route('inscripciones.validate-payment', $registration) }}" method="POST">
                                         @csrf
@@ -113,12 +134,16 @@
                                     </form>
                                 </div>
                             </div>
+                            @endif
                         @endif
                         @else
                             <input type="hidden" name="status" value="{{ $registration->status }}">
                         @endif
-                    </div>
+                </div>
+
+                @if(auth()->user()->role === 'piloto')
                 </form>
+                @endif
             </div>
         </div>
     </div>

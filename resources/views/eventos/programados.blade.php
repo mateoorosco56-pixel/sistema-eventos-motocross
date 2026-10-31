@@ -13,6 +13,7 @@
             @forelse ($events as $event)
                 <div class="col-md-6 col-xl-4">
                     <div class="card border-0 shadow-sm h-100">
+                        @include('eventos.partials.public-cover', ['event' => $event])
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>

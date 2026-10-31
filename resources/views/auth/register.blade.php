@@ -4,7 +4,7 @@
 <div class="amc-register-container">
 
     {{-- Lado izquierdo --}}
-    <div class="amc-register-brand">
+    <div class="amc-register-brand" style="--auth-motocross-image: url('{{ asset('imagenes/WhatsApp Image 2026-10-01 at 19.06.13 (4).jpeg') }}')">
 
         <div class="amc-logo">
             AMC
@@ -55,8 +55,8 @@
             {{-- Nombre --}}
             <div class="amc-field">
 
-                <label for="name">
-                    Nombre completo
+                <label for="first_name">
+                    Nombre
                 </label>
 
                 <div class="amc-input-wrapper">
@@ -66,25 +66,79 @@
                     </span>
 
                     <input
-                        id="name"
+                        id="first_name"
                         type="text"
-                        name="name"
-                        value="{{ old('name') }}"
-                        class="@error('name') amc-input-error @enderror"
+                        name="first_name"
+                        value="{{ old('first_name') }}"
+                        class="@error('first_name') amc-input-error @enderror"
                         placeholder="Ingresa tu nombre"
                         required
                         autofocus
-                        autocomplete="name"
+                        autocomplete="given-name"
                     >
 
                 </div>
 
-                @error('name')
+                @error('first_name')
                     <div class="amc-error">
                         {{ $message }}
                     </div>
                 @enderror
 
+            </div>
+
+            <div class="amc-field">
+
+                <label for="last_name">
+                    Apellido
+                </label>
+
+                <div class="amc-input-wrapper">
+
+                    <span class="amc-input-icon">
+                        👤
+                    </span>
+
+                    <input
+                        id="last_name"
+                        type="text"
+                        name="last_name"
+                        value="{{ old('last_name') }}"
+                        class="@error('last_name') amc-input-error @enderror"
+                        placeholder="Ingresa tu apellido"
+                        required
+                        autocomplete="family-name"
+                    >
+
+                </div>
+
+                @error('last_name')
+                    <div class="amc-error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+            <div class="amc-field">
+                <label for="identity_document_number">Número de carnet de identidad</label>
+                <div class="amc-input-wrapper">
+                    <span class="amc-input-icon">▤</span>
+                    <input
+                        id="identity_document_number"
+                        type="text"
+                        name="identity_document_number"
+                        value="{{ old('identity_document_number') }}"
+                        class="@error('identity_document_number') amc-input-error @enderror"
+                        placeholder="Ingresa tu número de carnet"
+                        maxlength="30"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                @error('identity_document_number')
+                    <div class="amc-error">{{ $message }}</div>
+                @enderror
             </div>
 
 
@@ -122,39 +176,6 @@
 
             </div>
 
-
-            {{-- Tipo de cuenta --}}
-            <div class="amc-field">
-
-                <label for="role">
-                    Tipo de cuenta
-                </label>
-
-                <div class="amc-input-wrapper">
-
-                    <span class="amc-input-icon">
-                        🏁
-                    </span>
-
-                    <select
-                        id="role"
-                        name="role"
-                        class="amc-select @error('role') amc-input-error @enderror"
-                        required
-                    >
-                        <option value="usuario" @selected(old('role', 'usuario') === 'usuario')>Usuario</option>
-                        <option value="piloto" @selected(old('role') === 'piloto')>Piloto</option>
-                    </select>
-
-                </div>
-
-                @error('role')
-                    <div class="amc-error">
-                        {{ $message }}
-                    </div>
-                @enderror
-
-            </div>
 
 
             {{-- Contraseña --}}
@@ -225,9 +246,9 @@
             </div>
 
 
-            <div id="pilot-verification-fields" class="amc-field" style="display: none;">
+            <div id="pilot-verification-fields" class="amc-field">
                 <label for="document_photo">
-                    Documento de identidad
+                    Fotografía del anverso (frente) del carnet
                 </label>
                 <div class="amc-input-wrapper amc-file-wrapper">
                     <input
@@ -235,6 +256,7 @@
                         type="file"
                         name="document_photo"
                         accept="image/jpeg,image/png,image/webp"
+                        required
                         class="@error('document_photo') amc-input-error @enderror"
                     >
                 </div>
@@ -245,7 +267,28 @@
                 @enderror
             </div>
 
-            <div id="pilot-selfie-fields" class="amc-field" style="display: none;">
+            <div id="pilot-document-back-field" class="amc-field">
+                <label for="document_back_photo">
+                    Fotografía del reverso del carnet
+                </label>
+                <div class="amc-input-wrapper amc-file-wrapper">
+                    <input
+                        id="document_back_photo"
+                        type="file"
+                        name="document_back_photo"
+                        accept="image/jpeg,image/png,image/webp"
+                        required
+                        class="@error('document_back_photo') amc-input-error @enderror"
+                    >
+                </div>
+                @error('document_back_photo')
+                    <div class="amc-error">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            <div id="pilot-selfie-fields" class="amc-field">
                 <label for="selfie_photo">
                     Selfie actual
                 </label>
@@ -255,6 +298,7 @@
                         type="file"
                         name="selfie_photo"
                         accept="image/jpeg,image/png,image/webp"
+                        required
                         class="@error('selfie_photo') amc-input-error @enderror"
                     >
                 </div>
@@ -262,6 +306,18 @@
                     <div class="amc-error">
                         {{ $message }}
                     </div>
+                @enderror
+            </div>
+
+            <div class="amc-field">
+                <label class="d-flex align-items-start gap-2">
+                    <input type="checkbox" name="identity_processing_consent" value="1" required>
+                    <span>
+                        Autorizo el procesamiento local de ambas caras de mi carnet y fotografías para validar mi identidad. Si el OCR o la comparación facial no son concluyentes, mi solicitud quedará pendiente de revisión por un administrador. No se realiza una prueba de vida.
+                    </span>
+                </label>
+                @error('identity_processing_consent')
+                    <div class="amc-error">{{ $message }}</div>
                 @enderror
             </div>
 
@@ -287,23 +343,6 @@
 
 </div>
 ```
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const roleSelect = document.getElementById('role');
-        const pilotDocumentField = document.getElementById('pilot-verification-fields');
-        const pilotSelfieField = document.getElementById('pilot-selfie-fields');
-
-        function togglePilotVerificationFields() {
-            const isPilot = roleSelect.value === 'piloto';
-            pilotDocumentField.style.display = isPilot ? 'block' : 'none';
-            pilotSelfieField.style.display = isPilot ? 'block' : 'none';
-        }
-
-        roleSelect.addEventListener('change', togglePilotVerificationFields);
-        togglePilotVerificationFields();
-    });
-</script>
 
 <style>
 
@@ -839,3 +878,4 @@
     }
 
 </style>
+@include('layouts.tema-autenticacion-piloto')

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
+use App\Models\Categoria;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Junior', 'description' => 'Categoría para pilotos jóvenes.'],
             ['name' => 'Open', 'description' => 'Categoría abierta.'],
         ] as $category) {
-            Category::firstOrCreate(['name' => $category['name']], $category);
+            Categoria::firstOrCreate(['name' => $category['name']], $category);
         }
 
         User::factory()->create([

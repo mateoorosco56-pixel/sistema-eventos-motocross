@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm amc-main-navbar {{ auth()->check() && auth()->user()->role === 'administrador' ? 'amc-admin-navbar' : '' }}">
     <div class="container-fluid">
 
         {{-- Logo / Nombre --}}
@@ -6,21 +6,14 @@
             AMC
         </a>
 
-        {{-- Botón móvil --}}
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarAMC"
-            aria-controls="navbarAMC"
-            aria-expanded="false"
-            aria-label="Mostrar navegación"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        @unless(auth()->check() && auth()->user()->role === 'administrador')
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAMC" aria-controls="navbarAMC" aria-expanded="false" aria-label="Abrir menú de navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        @endunless
 
         {{-- Navegación --}}
-        <div class="collapse navbar-collapse" id="navbarAMC">
+        <div class="{{ auth()->check() && auth()->user()->role === 'administrador' ? 'navbar-collapse amc-admin-navigation' : 'collapse navbar-collapse' }}" id="navbarAMC">
 
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
@@ -29,12 +22,16 @@
 
                 {{-- Eventos --}}
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('eventos.*') ? 'active' : '' }}" href="{{ route('eventos.index') }}">
-                        Eventos
+                    <a class="nav-link {{ request()->routeIs('eventos.*', 'organizador.mis-eventos') ? 'active' : '' }}" href="{{ auth()->check() && auth()->user()->role === 'organizador' ? route('organizador.mis-eventos') : route('eventos.index') }}">
+                        @auth
+                            {{ auth()->user()->role === 'organizador' ? 'Mis eventos' : 'Eventos' }}
+                        @else
+                            Eventos
+                        @endauth
                         @auth
                         @if(auth()->user()->role === 'piloto')
                             @php
-                                $nuevosEventos = auth()->user()->unreadNotifications->where('type', \App\Notifications\EventPublished::class)->count();
+                                $nuevosEventos = auth()->user()->unreadNotifications->where('type', \App\Notifications\EventoPublicado::class)->count();
                             @endphp
                             @if($nuevosEventos > 0)
                                 <span class="badge bg-danger rounded-pill ms-1" title="Hay {{ $nuevosEventos }} eventos nuevos disponibles">{{ $nuevosEventos }}</span>
@@ -102,58 +99,18 @@
 
             {{-- Usuario --}}
             @auth
-            <div class="dropdown ms-lg-auto">
-
-                <button
-                    class="btn btn-dark dropdown-toggle"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                >
+            <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 ms-lg-auto">
+                <a class="nav-link text-white" href="{{ route('profile.edit') }}">
                     {{ Auth::user()->name }}
-                </button>
-
-                <ul class="dropdown-menu dropdown-menu-end">
-
-                    <li>
-                        <a class="dropdown-item" href="{{ route('profile.edit') }}">
-                            Perfil
-                        </a>
-                    </li>
-
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}" class="d-inline w-100">
-                            @csrf
-                            @method('POST')
-
-                            <button
-                                type="submit"
-                                class="dropdown-item w-100 text-start border-0 bg-transparent"
-                            >
-                                Cerrar sesión
-                            </button>
-                        </form>
-                    </li>
-
-                </ul>
-
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                    @csrf
+                    @method('POST')
+                    <button type="submit" class="btn btn-outline-light w-100">Cerrar sesión</button>
+                </form>
             </div>
             @else
                 <a href="{{ route('login') }}" class="btn btn-outline-light">Iniciar sesión</a>
-            @endauth
-
-            @auth
-                @if(in_array(auth()->user()->role, ['piloto', 'administrador']))
-                    <form method="POST" action="{{ route('logout') }}" class="mt-2 mt-lg-0 ms-lg-2">
-                        @csrf
-                        @method('POST')
-                        <button type="submit" class="btn btn-danger w-100 w-lg-auto">Cerrar sesión</button>
-                    </form>
-                @endif
             @endauth
 
         </div>

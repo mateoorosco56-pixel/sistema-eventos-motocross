@@ -3,7 +3,7 @@
     <div class="amc-login-container">
 
         {{-- Lado izquierdo --}}
-        <div class="amc-login-brand">
+        <div class="amc-login-brand" style="--auth-motocross-image: url('{{ asset('imagenes/WhatsApp Image 2026-10-01 at 19.06.13 (4).jpeg') }}')">
 
             <div class="amc-logo">
                 AMC
@@ -741,3 +741,4 @@
     }
 
 </style>
+@include('layouts.tema-autenticacion-piloto')

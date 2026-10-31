@@ -1,27 +1,7 @@
 <x-organizer-layout>
-    <div class="organizer-shell">
-        <aside class="organizer-sidebar">
-            <a href="{{ route('dashboard') }}" class="organizer-brand"><span class="organizer-brand-mark">AMC</span><span>Motocross</span></a>
-            <div class="organizer-user">
-                <div class="organizer-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-                <div><strong>{{ Auth::user()->name }}</strong><small>Organizador</small></div>
-            </div>
-            <nav class="organizer-menu" aria-label="Navegación del organizador">
-                <span class="organizer-menu-label">CENTRO DE GESTIÓN</span>
-                <a href="{{ route('dashboard') }}" class="organizer-menu-link active"><span>▦</span> Dashboard</a>
-                <a href="{{ route('organizador.mis-eventos') }}" class="organizer-menu-link"><span>◷</span> Mis eventos</a>
-                <a href="{{ route('eventos.create') }}" class="organizer-menu-link"><span>＋</span> Crear evento</a>
-                <a href="{{ route('inscripciones.index') }}" class="organizer-menu-link"><span>✓</span> Inscripciones</a>
-                <a href="{{ route('participantes.index') }}" class="organizer-menu-link"><span>♙</span> Participantes</a>
-                <a href="{{ route('resultados.index') }}" class="organizer-menu-link"><span>★</span> Resultados</a>
-                <a href="{{ route('categorias.index') }}" class="organizer-menu-link"><span>≡</span> Categorías</a>
-                <span class="organizer-menu-label organizer-menu-label-spaced">CUENTA</span>
-                <a href="{{ route('profile.edit') }}" class="organizer-menu-link"><span>⚙</span> Mi perfil</a>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="organizer-menu-link organizer-menu-button"><span>↪</span> Cerrar sesión</button></form>
-            </nav>
-        </aside>
-
-        <main class="organizer-main">
+    <div class="workspace-shell">
+        @include('layouts.barra-lateral-panel')
+        <div class="workspace-main">
             <header class="organizer-topbar">
                 <div><span class="organizer-eyebrow">Centro de operaciones</span><h1>Calendario</h1></div>
                 <div class="organizer-topbar-actions">
@@ -54,7 +34,7 @@
                 </div>
             </header>
 
-            <section class="organizer-content">
+            <section class="workspace-content organizer-content">
                 <div class="organizer-heading-row">
                     <div><h2>Agenda del campeonato</h2><p>Organiza fechas, inscripciones y resultados desde un solo lugar.</p><span class="visually-hidden">Tu campeonato, en marcha.</span></div>
                     <a href="{{ route('eventos.create') }}" class="organizer-primary-action">+ Crear evento</a>
@@ -91,6 +71,6 @@
                     </section>
                 </div>
             </section>
-        </main>
+        </div>
     </div>
 </x-organizer-layout>

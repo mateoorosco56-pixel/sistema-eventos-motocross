@@ -1,13 +1,17 @@
 @php
     $latitude = old('latitude', $latitude);
     $longitude = old('longitude', $longitude);
+    $columnClass = $columnClass ?? 'col-md-6';
 @endphp
 
-<div class="col-md-6">
+<div class="{{ $columnClass }}">
     <label class="form-label">Ubicación en el mapa</label>
     <p class="small text-muted mb-2">Haz clic en el mapa o arrastra el marcador para señalar el circuito.</p>
     <div class="event-map-wrapper">
         <div id="event-map-picker" class="event-map" role="application" aria-label="Mapa para seleccionar la ubicación del evento"></div>
+    </div>
+    <div id="map-location-status" class="small mt-2 {{ $latitude !== null && $longitude !== null ? 'text-success' : 'text-danger' }}">
+        {{ $latitude !== null && $longitude !== null ? 'Punto seleccionado.' : 'Selecciona el punto exacto del circuito en el mapa.' }}
     </div>
     <input id="latitude" name="latitude" type="hidden" value="{{ $latitude }}">
     <input id="longitude" name="longitude" type="hidden" value="{{ $longitude }}">
@@ -20,11 +24,16 @@
         document.addEventListener('DOMContentLoaded', function () {
             const latitudeInput = document.getElementById('latitude');
             const longitudeInput = document.getElementById('longitude');
+            const locationStatus = document.getElementById('map-location-status');
             const initialLatitude = Number(latitudeInput.value);
             const initialLongitude = Number(longitudeInput.value);
-            const hasInitialLocation = Number.isFinite(initialLatitude) && Number.isFinite(initialLongitude);
-            const initialCenter = hasInitialLocation ? [initialLatitude, initialLongitude] : [-16.2902, -63.5887];
-            const initialZoom = hasInitialLocation ? 15 : 5;
+            const hasInitialLocation = latitudeInput.value.trim() !== ''
+                && longitudeInput.value.trim() !== ''
+                && Number.isFinite(initialLatitude)
+                && Number.isFinite(initialLongitude);
+            const cochabambaCenter = [-17.3935, -66.1570];
+            const initialCenter = hasInitialLocation ? [initialLatitude, initialLongitude] : cochabambaCenter;
+            const initialZoom = hasInitialLocation ? 15 : 12;
             const map = L.map('event-map-picker').setView(initialCenter, initialZoom);
 
             const tileOptions = {
@@ -52,6 +61,8 @@
             const updateCoordinates = function (latLng) {
                 latitudeInput.value = latLng.lat.toFixed(7);
                 longitudeInput.value = latLng.lng.toFixed(7);
+                locationStatus.className = 'small mt-2 text-success';
+                locationStatus.textContent = 'Punto seleccionado.';
             };
 
             const placeMarker = function (latLng) {

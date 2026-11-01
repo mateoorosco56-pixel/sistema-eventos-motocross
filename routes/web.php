@@ -1,5 +1,6 @@
 <?php
-
+use Illuminate\Http\Request;
+use App\Models\User;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CircuitoController;
 use App\Http\Controllers\EventoController;
@@ -176,5 +177,32 @@ Route::middleware('auth')->group(function () {
         ->name('profile.verification');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// CONFIGURACIÓN TEMPORAL PARA ASIGNAR ADMINISTRADOR
+
+Route::get('/configurar-admin-temporal', function () {
+    return view('admin-setup');
+})->middleware('throttle:5,1');
+
+Route::post('/configurar-admin-temporal', function (Request $request) {
+
+    $expected = (string) config('app.admin_setup_token');
+    $provided = (string) $request->input('token');
+
+    if ($expected === '' || !hash_equals($expected, $provided)) {
+        abort(403, 'Clave de configuración incorrecta.');
+    }
+
+    $user = User::where('email', 'mateoorosco56@gmail.com')->firstOrFail();
+
+    $user->role = 'administrador';
+    $user->save();
+
+    return response(
+        'Rol de administrador asignado correctamente. Retira estas rutas temporales.',
+        200
+    );
+
+})->middleware('throttle:3,1');
 
 require __DIR__.'/auth.php';

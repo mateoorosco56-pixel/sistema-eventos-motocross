@@ -99,6 +99,9 @@ return [
 
     'key' => env('APP_KEY'),
     'admin_setup_token' => env('ADMIN_SETUP_TOKEN'),
+    'admin_bootstrap_name' => env('ADMIN_BOOTSTRAP_NAME'),
+'admin_bootstrap_email' => env('ADMIN_BOOTSTRAP_EMAIL'),
+'admin_bootstrap_password' => env('ADMIN_BOOTSTRAP_PASSWORD'),
 
     'previous_keys' => [
         ...array_filter(

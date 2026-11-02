@@ -1,3 +1,4 @@
+
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
@@ -13,16 +14,49 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
+        {{-- Foto de perfil --}}
+        <div>
+            <x-input-label for="profile_photo" value="Foto de perfil" />
+
+            @if ($user->profile_photo_path)
+                <img
+                    src="{{ asset('storage/' . $user->profile_photo_path) }}"
+                    alt="Foto de perfil"
+                    class="mt-2 h-24 w-24 rounded-full object-cover"
+                >
+            @else
+                <div class="mt-2 flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    Sin foto
+                </div>
+            @endif
+
+            <input
+                id="profile_photo"
+                name="profile_photo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                class="mt-2 block w-full"
+            />
+
+            <p class="mt-1 text-xs text-gray-500">
+                Formatos permitidos: JPG, PNG y WEBP. Máximo 2 MB.
+            </p>
+
+            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+        </div>
+
+        {{-- Nombre --}}
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
+        {{-- Correo --}}
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
@@ -47,6 +81,7 @@
             @endif
         </div>
 
+        {{-- Botón guardar --}}
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

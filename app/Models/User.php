@@ -38,6 +38,7 @@ class User extends Authenticatable
     'verification_reviewed_by',
     'verification_reviewed_at',
     'verification_rejection_reason',
+    'profile_photo_path',
 ];
 
     /**
